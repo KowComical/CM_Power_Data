@@ -94,7 +94,6 @@ def australia():
         df_daily = df_daily.set_index('datetime').resample('d').sum().reset_index()
         af.agg(df_daily, 'datetime', out_path_simulated_yearly, 'daily',
                name='Australia_daily_generation-' + str(y) + '.csv', folder=False, unit=True)
-        # #############################################monthly###############################################
         # monthly
         df_monthly = df_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_monthly, 'datetime', out_path_simulated_yearly, 'monthly',
@@ -102,13 +101,12 @@ def australia():
 
 
 def brazil():
-    # ##############################################################路径#######################################################
     file_path = os.path.join(global_path, 's_america', 'brazil')
     in_path = os.path.join(file_path, 'raw')
     out_path_cleaned = af.create_folder(file_path, 'cleaned')
     out_path_simulated = af.create_folder(file_path, 'simulated')
     in_path_file = os.path.join(in_path, 'Brazil_ONS_Hourly.csv')
-    # #############################################################Raw-Cleaned########################################################
+    
     df = pd.read_csv(in_path_file).rename(columns={'Date': 'datetime'})
     # 小时数据从GWH变为MWH
     df = df.set_index(['datetime']).stack().reset_index().rename(columns={'level_1': 'type', 0: 'power'})
@@ -123,7 +121,6 @@ def brazil():
         df_cleaned = df[df['year'] == y]
         df_cleaned.to_csv(os.path.join(out_path_cleaned, 'brazil-generation-%s-cleaned.csv' % y), index=False)
 
-        # #######################################################cleaned-simulated######################################
         df_hourly = df[df['year'] == y].reset_index(drop=True).fillna(0)
         df_hourly['Thermal.Gás.natural'] = df_hourly['Thermal:Gás natural'].astype(float) + df_hourly[
             'Thermal:Gás Natural'].astype(float)
@@ -149,12 +146,10 @@ def brazil():
         # hourly
         af.agg(df_hourly, 'datetime', out_path_simulated_yearly, 'hourly',
                name='Brazil_hourly_generation-' + str(y) + '.csv', folder=False, unit=False)
-        # #############################################################daily#########################################
         # daily
         df_daily = df_daily.set_index('datetime').resample('d').sum().reset_index()
         af.agg(df_daily, 'datetime', out_path_simulated_yearly, 'daily',
                name='Brazil_daily_generation-' + str(y) + '.csv', folder=False, unit=True)
-        # #############################################monthly###############################################
         # monthly
         df_monthly = df_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_monthly, 'datetime', out_path_simulated_yearly, 'monthly',
@@ -167,7 +162,7 @@ def china():
     out_path_simulated = af.create_folder(file_path, 'simulated')
 
     # 获取daily数据
-    url = 'https://emres.cn/api/carbonmonitor/getChinaCoalConsumption.php'
+    url = 'hidden'
     df_daily = pd.DataFrame(requests.get(url).json()['data']).reset_index(drop=True)
     # 读取旧数据
     df_old = pd.read_csv(os.path.join(in_path, 'daily.csv'))
@@ -266,12 +261,10 @@ def chile():
         # hourly
         af.agg(df_hourly, 'datetime', out_path_simulated_yearly, 'hourly',
                name='Chile_hourly_generation-' + str(y) + '.csv', folder=False, unit=False)
-        # #############################################################daily#########################################
         # daily
         df_daily = df_daily.set_index('datetime').resample('d').sum().reset_index()
         af.agg(df_daily, 'datetime', out_path_simulated_yearly, 'daily',
                name='Chile_daily_generation-' + str(y) + '.csv', folder=False, unit=True)
-        # #############################################monthly###############################################
         # monthly
         df_monthly = df_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_monthly, 'datetime', out_path_simulated_yearly, 'monthly',
@@ -289,7 +282,7 @@ def eu():
     end_month = str(datetime.now().month).zfill(2)  # 数据截至年
     end_day = str(datetime.now().day).zfill(2)  # 数据截至年
     now = end_year + '-' + end_month + '-' + end_day
-    # ###############################################################################################################################
+    
     coal_list = ['Fossil Brown coal/Lignite  - Actual Aggregated [MW]',
                  'Fossil Coal-derived gas  - Actual Aggregated [MW]',
                  'Fossil Hard coal  - Actual Aggregated [MW]',
@@ -308,13 +301,12 @@ def eu():
                   'Hydro Water Reservoir  - Actual Aggregated [MW]']
     wind_list = ['Wind Offshore  - Actual Aggregated [MW]',
                  'Wind Onshore  - Actual Aggregated [MW]']
-    # ################################################################################################################
+
     file = os.listdir(in_path_entsoe)
     file_name = []
     for dbtype in file:
         if os.path.isfile(os.path.join(in_path_entsoe, dbtype)):
             file_name.append(dbtype)
-    # ################################################raw-cleaned-simulated_bmrs##########################################
     # bmrs
     df_bmrs = pd.read_csv(in_path_bmrs_file)
     af.time_info(df_bmrs, 'datetime')
@@ -347,7 +339,7 @@ def eu():
         df_bmrs_monthly = df_bmrs_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_bmrs_monthly, 'datetime', out_path_simulated_yearly_per, 'monthly', 'United_Kingdom_BMRS.csv',
                folder=True, unit=True)
-    # ########################################entose-raw-cleaned-simulated#############################################
+        
     for x in file_name:
         df_cleaned = pd.read_csv(os.path.join(in_path_entsoe, x)).rename(columns={'MTU': 'datetime'})
         af.time_info(df_cleaned, 'datetime')
@@ -393,7 +385,7 @@ def india():
     out_path_simulated = af.create_folder(file_path, 'simulated')
     in_path_file = os.path.join(in_path, '%s.csv' % 'India_POSOCO_Daily')
     in_path_file_thermal = os.path.join(in_path, '%s.csv' % 'India_POSOCO_Daily_Thermal')
-    # ##################################################raw-cleaned########################################################
+
     # 将两个表格合并
     df = pd.read_csv(in_path_file)
     df['coal'] = df['Coal'] + df['Lignite']
@@ -452,11 +444,10 @@ def india():
         df_temp.to_csv(os.path.join(out_path_cleaned, 'india-generation-%s-cleaned-filled.csv' % x), index=False,
                        encoding='utf_8_sig')
 
-    ####################################################################
     # 处理monthly数据做后续备用
     df_iea = af.iea_data('india')
     df_new_result = pd.DataFrame()
-    # #########################################cleaned-simulated###################################################
+
     for y in df_all['year'].drop_duplicates().tolist():
         df_iea_temp = df_iea[df_iea['year'] == y].reset_index(drop=True)
         df_temp = df_all[df_all['year'] == y].reset_index(drop=True)
@@ -518,7 +509,6 @@ def india():
 
 
 def japan():
-    # ###############################################################
     file_path = os.path.join(global_path, 'asia', 'japan')
     in_path = os.path.join(file_path, 'raw')
     month_path = os.path.join(in_path, 'month')
@@ -528,7 +518,7 @@ def japan():
     in_path_file_2016 = os.path.join(in_path, 'Japan_daily_generation-2016-v0.1_20201221.csv')
     in_path_file_2017 = os.path.join(in_path, 'Japan_daily_generation-2017-v0.1_20201221.csv')
     in_path_file_2018 = os.path.join(in_path, 'Japan_daily_generation-demand-2018-0.1_20201221.csv')
-    # #########################################################
+
     df = pd.read_csv(in_path_file)
     month_name = af.search_file(month_path)
     df_new = pd.concat(pd.read_csv(f, encoding='shift-jis', header=3) for f in month_name).reset_index(drop=True)
@@ -558,7 +548,6 @@ def japan():
         df[df['year'] == x].to_csv(os.path.join(out_path_cleaned, 'japan-generation-%s-cleaned.csv' % x), index=False,
                                    encoding='utf_8_sig')
 
-    # ##################################cleaned-simulated######################################################
     # iea数据
     df_iea = af.iea_data('japan')
     df_new_result = pd.DataFrame()
@@ -710,12 +699,10 @@ def mexico():
         # hourly
         af.agg(df_hourly, 'datetime', out_path_simulated_yearly, 'hourly',
                name='Mexico_hourly_generation-' + str(y) + '.csv', folder=False, unit=False)
-        # #############################################################daily#########################################
         # daily
         df_daily = df_daily.set_index('datetime').resample('d').sum().reset_index()
         af.agg(df_daily, 'datetime', out_path_simulated_yearly, 'daily',
                name='Mexico_daily_generation-' + str(y) + '.csv', folder=False, unit=True)
-        # #############################################monthly###############################################
         # monthly
         df_monthly = df_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_monthly, 'datetime', out_path_simulated_yearly, 'monthly',
@@ -820,7 +807,6 @@ def us():
         df_cleaned.to_csv(os.path.join(out_path_cleaned, 'us-generation-%s-cleaned.csv' % y), index=False,
                           encoding='utf_8_sig')
 
-        # ##########################cleaned-simulated#################################
         # hourly
         out_path_simulated_yearly = af.create_folder(out_path_simulated, str(y))
         af.agg(df_cleaned, 'datetime', out_path_simulated_yearly,
@@ -894,42 +880,3 @@ def south_africa():
         df_monthly = df_monthly.set_index('datetime').resample('m').sum().reset_index()
         af.agg(df_monthly, 'datetime', out_path_simulated_yearly, 'monthly',
                name='South_Africa_monthly_generation-' + str(y) + '.csv', folder=False, unit=True)
-
-
-def turkey():
-    # 还未写好
-    re.compile('')
-    df = pd.read_csv('Turkey_TEIAS_Hourly_2014.csv').rename(
-        columns={'Date': 'date', 'Hour': 'hour'}).fillna(0)  # 将异常值改为0
-    # 能源改名与汇总
-    # Coal
-    coal_list = ['Asphaltite Coal', 'Imported Coal', 'Lignite', 'Hard Coal']
-    df['coal'] = df[coal_list].astype(float).sum(axis=1)
-    # Gas
-    gas_list = ['Natural Gas', 'LNG', 'LPG']
-    df['gas'] = df[gas_list].astype(float).sum(axis=1)
-    # Oil
-    oil_list = ['Fuel Oil', 'Naphtha', 'Dıesel Oil']
-    df['oil'] = df[oil_list].astype(float).sum(axis=1)
-    # Other
-    other_list = ['Waste', 'Biomass', 'Geothermal']
-    df['other'] = df[other_list].astype(float).sum(axis=1)
-    # Solar
-    solar_list = ['Solar']
-    df['solar'] = df[solar_list].astype(float).sum(axis=1)
-    # Wind
-    wind_list = ['Wind']
-    df['wind'] = df[wind_list].astype(float).sum(axis=1)
-    # Nuclear
-    nuclear_list = ['nukleer']
-    df['nuclear'] = df[nuclear_list].astype(float).sum(axis=1)
-    # Hydro
-    hydro_list = ['Hydro Storage', 'Run Of River']
-    df['hydro'] = df[hydro_list].astype(float).sum(axis=1)
-
-    df['date'] = pd.to_datetime(df['date'])
-    df['year'] = df['date'].dt.year
-    df['month'] = df['date'].dt.month
-    df['day'] = df['date'].dt.day
-    df['datetime'] = pd.to_datetime(df[['year', 'month', 'day', 'hour']].assign(), errors='coerce')
-    print(df)
